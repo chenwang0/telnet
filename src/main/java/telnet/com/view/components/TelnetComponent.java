@@ -10,7 +10,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import telnet.com.backend.TelnetControl;
 import telnet.com.backend.util.ConfigManager;
-import telnet.com.backend.util.MonitorManager;
 
 /**
  * 监控面板主页

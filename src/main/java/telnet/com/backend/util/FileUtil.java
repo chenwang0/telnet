@@ -18,7 +18,6 @@ public class FileUtil {
             // 判断文件是否存在
             if (!file.exists()) {
                 boolean newFile = file.createNewFile();
-
             }
             return true;
         } catch (IOException e) {

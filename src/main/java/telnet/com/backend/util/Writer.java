@@ -5,7 +5,7 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * @author chWein
+ * @author cw
  * @remark 文件写入工具类
  * @createTime 2022/5/13 - 3:53
  */
@@ -23,9 +23,7 @@ public class Writer {
         exists(fileInfo);
 
         try (BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(
-                        new FileOutputStream(fileInfo, append),
-                        StandardCharsets.UTF_8))) {
+                new OutputStreamWriter(new FileOutputStream(fileInfo, append),StandardCharsets.UTF_8))) {
 
             writer.write(context);
             writer.newLine();

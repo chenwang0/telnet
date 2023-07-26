@@ -7,9 +7,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
+import telnet.com.backend.InstanceFactory;
 import telnet.com.backend.entity.Monitor;
 import telnet.com.backend.entity.StatsSSPVO;
-import telnet.com.backend.util.MonitorManager;
+import telnet.com.backend.manager.MonitorManager;
 import telnet.com.view.TelnetApplication;
 
 import java.util.ArrayList;
@@ -58,13 +59,11 @@ public class MonitorComponent {
                         } else {
                             btn.setOnAction( actionEvent -> {
                                 StatsSSPVO vo = getTableView().getItems().get(getIndex());
-                                Monitor monitor = MonitorManager.monitorList.stream().filter(
-                                        m ->
-                                                m.getHostname().equals(vo.getHostname())
-                                                        &&
-                                                        m.getPort().equals(Integer.parseInt(vo.getPort()))
-                                ).findFirst().orElseThrow(() -> new RuntimeException("数据已经不存在"));
-                                MonitorManager.remove( monitor );
+                                MonitorManager manager = InstanceFactory.getMonitorManager();
+                                if (!manager.remove(vo.getHostname(), Integer.parseInt(vo.getPort()))) {
+                                    throw new RuntimeException("数据已经不存在");
+                                }
+                                MonitorComponent.refresh();
                             });
                             //设置按钮
                             setGraphic(btn);
@@ -86,10 +85,11 @@ public class MonitorComponent {
     }
 
 
-    public static void refresh(  ) {
+    public static void refresh() {
         data.clear();
         List<StatsSSPVO> statsSSPVOList = new ArrayList<>();
-        MonitorManager.monitorList.forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
+        MonitorManager monitorManager = InstanceFactory.getMonitorManager();
+        monitorManager.getMonitorList().forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
         data.addAll(statsSSPVOList);
     }
 

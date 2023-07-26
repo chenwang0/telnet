@@ -1,43 +1,41 @@
 package telnet.com.backend.util;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 /**
  * 资源操作线程，安全操作，事后自动释放资源锁
  */
-public class ReleaseImpl implements Runnable{
+public class ReleaseImpl implements Runnable {
 
-    Function function;
+    final Function function;
+    final ReentrantLock lock;
 
-    public void setFunction(Function function) {
+    public ReleaseImpl(Function function, ReentrantLock lock) {
         this.function = function;
+        this.lock = lock;
     }
-
 
     @Override
     public void run() {
-        while( true ) {
-            if (MonitorManager.getMonitorStatus()) {
-                LogImpl.info("资源状态安全，可操作资源");
-                try {
-                    function.run();
-                    break;
-                }finally {
-                    MonitorManager.setMonitorStatus(true);
-                    LogImpl.info("资源锁已释放");
-                }
-            }
+        lock.lock();
+        try {
+
+            LogImpl.info("资源状态安全，可操作资源");
+            function.run();
+        } finally {
+            lock.unlock();
         }
     }
 
 
-
     /**
      * 启动线执行程释放锁
+     * 目的想避免单线程卡顿
      * @param function run
      */
-    public static void release( Function function ){
+    public static void release( ReentrantLock lock, Function function ) {
 
-        ReleaseImpl release = new ReleaseImpl();
-        release.setFunction(function);
+        ReleaseImpl release = new ReleaseImpl(function, lock);
         new Thread(release).start();
     }
 }

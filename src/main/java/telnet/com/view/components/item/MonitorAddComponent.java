@@ -1,24 +1,19 @@
 package telnet.com.view.components.item;
 
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import telnet.com.backend.InstanceFactory;
 import telnet.com.backend.entity.Monitor;
+import telnet.com.backend.manager.MonitorManager;
 import telnet.com.backend.util.CheckUtil;
-import telnet.com.backend.util.MonitorManager;
-
-import java.util.Optional;
 
 /**
  * 配置新增组件
@@ -60,9 +55,9 @@ public class MonitorAddComponent {
                 return;
             }
 
-            Optional<Monitor> any = MonitorManager.monitorList.stream().filter(m -> m.getHostname().equals(hostnameFld.getText()) && m.getPort().equals(Integer.parseInt(portFld.getText()))).findAny();
+            MonitorManager monitorManager = InstanceFactory.getMonitorManager();
 
-            if (any.isPresent()){
+            if (monitorManager.contains(hostnameFld.getText(), Integer.parseInt(portFld.getText()))) {
 
                 hintLab.setText("这条数据已存在！"+hostnameFld.getText() + ":" + portFld.getText());
                 return;
@@ -74,10 +69,9 @@ public class MonitorAddComponent {
                 return;
             }
 
-
             hintLab.setTextFill(Color.GREEN);
             hintLab.setText("添加成功");
-            MonitorManager.add( new Monitor( hostnameFld.getText(),  Integer.parseInt(portFld.getText()),  remarkFld.getText()));
+            monitorManager.add( new Monitor( hostnameFld.getText(),  Integer.parseInt(portFld.getText()),  remarkFld.getText()));
         });
 
         // hostname label

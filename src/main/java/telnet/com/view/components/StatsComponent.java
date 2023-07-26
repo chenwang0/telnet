@@ -7,8 +7,8 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
+import telnet.com.backend.InstanceFactory;
 import telnet.com.backend.entity.StatsSSPVO;
-import telnet.com.backend.util.MonitorManager;
 import telnet.com.view.TelnetApplication;
 
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class StatsComponent {
     public static void refresh( ) {
         data.clear();
         List<StatsSSPVO> statsSSPVOList = new ArrayList<>();
-        MonitorManager.monitorList.forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
+        InstanceFactory.getMonitorManager().getMonitorList().forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
         data.addAll(statsSSPVOList);
     }
 

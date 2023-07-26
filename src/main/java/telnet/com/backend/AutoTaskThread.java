@@ -2,18 +2,20 @@ package telnet.com.backend;
 
 import telnet.com.backend.util.ConfigManager;
 import telnet.com.backend.util.LogImpl;
-import telnet.com.backend.util.MonitorManager;
 import telnet.com.view.components.LogComponent;
 
 import java.util.TimerTask;
 
+/**
+ * 自动运行定时任务线程
+ */
 public class AutoTaskThread extends TimerTask {
 
     public boolean runStatus = ConfigManager.autoTask;
 
     @Override
     public void run() {
-        if ( runStatus ) {
+        if ( runStatus && !Thread.currentThread().isInterrupted()) {
             LogImpl.info();
             LogImpl.info("will run task");
             LogComponent.print("[task]: 自动任务即将工作");

@@ -8,8 +8,8 @@ import java.io.*;
 import java.util.Properties;
 
 /**
- * @remark: TODO
- * @author: chwein
+ * @remark: 从配置文件中读取系统参数
+ * @author: cw
  * @since: 2022/9/27 - 13:56
  */
 public class ConfigManager {
@@ -93,6 +93,7 @@ public class ConfigManager {
 			io.printStackTrace();
 		}
 	}
+
 
 
 	/**

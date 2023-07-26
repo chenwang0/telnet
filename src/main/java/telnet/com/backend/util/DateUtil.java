@@ -15,4 +15,5 @@ public class DateUtil {
     public static String getTime(){
         return TIME.format(new Date());
     }
+
 }

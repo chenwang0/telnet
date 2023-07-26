@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.DialogEvent;
 import telnet.com.backend.entity.Monitor;
+import telnet.com.backend.manager.MonitorManager;
 import telnet.com.backend.util.*;
 import telnet.com.view.components.HomeComponent;
 import telnet.com.view.components.LogComponent;
@@ -71,29 +72,36 @@ public class TelnetControl {
 	 */
 	public static void telnet() {
 
-		if (MonitorManager.monitorList.isEmpty()) {
-			LogComponent.print( "[sys]: 还没有监控数据！快去配置管理里配置吧~" );
-			return;
-		}
+		MonitorManager monitorManager = InstanceFactory.getMonitorManager();
 
 		// 当线程资源状态为 false 的时候不执行
-		if (!MonitorManager.getMonitorStatus()){
+		if (!monitorManager.getResourceStatus()){
 
 			LogImpl.info("occupancy of resources");
 			LogComponent.print( "[sys]: 资源正在被其他线程使用，此线程本次不执行" );
 			return;
 		}
-		try{
+
+		monitorManager.lock();
+
+		try {
+
+			List<Monitor> monitorList = monitorManager.getMonitorList();
+			if (monitorList.isEmpty()) {
+				LogComponent.print( "[sys]: 还没有监控数据！快去配置管理里配置吧~" );
+				return;
+			}
+
 
 			// 声明创建用于保存telnet 异常监控对象，使用于弹出层提示
 			List<Monitor> errMonitor = new ArrayList<>();
 			// 遍历监控数据，循环执行 telnet. 使用线程数据同步的方式执行 MonitorManager.getMonitorList()
-			for (Monitor monitor : MonitorManager.getMonitorList()) {
+			for (Monitor monitor : monitorList) {
 
 				// 调用 telnet 实现工具类执行 telnet 监听
 				boolean result = TelnetUtil.telnet(monitor.getHostname(), monitor.getPort(), ConfigManager.timeout);
 				// 验证 telnet 执行结果，判定 当前IP PORT是否正常
-				if ( !result ){
+				if ( !result ) {
 					// 对异常IP PORT进行累加异常记录值
 					monitor.setErrNumber( monitor.getErrNumber() + 1 );
 					// 将此次 telnet 异常数据添加到异常集合中
@@ -102,15 +110,17 @@ public class TelnetControl {
 				// 累加telnet 总数据
 				monitor.setCountNumber(monitor.getCountNumber() + 1 );
 				// 将 telnet 信息输入日志
-				LogImpl.info( LogImpl.LOG_INFO,monitor.getHostname(), monitor.getPort().toString(), result);
+				LogImpl.info( LogImpl.LOG_INFO, monitor.getHostname(), monitor.getPort().toString(), result);
 			}
 			LogImpl.info("telnet run end");
 
-			MonitorManager.whiteData();
+			// 持久化
+			monitorManager.dataPersistence();
 
 			// 判断是否有监控异常信息 没有结束方法
-			if (errMonitor.isEmpty())
+			if (errMonitor.isEmpty()) {
 				return;
+			}
 
 			// 发现异常监控对象集合中有数据，准备组装异常信息调用弹窗，提示异常信息
 			StringBuffer buffer = new StringBuffer("telnet err >>>");
@@ -127,7 +137,7 @@ public class TelnetControl {
 			});
 
 		} finally {
-			MonitorManager.setMonitorStatus(true);
+			monitorManager.unlock();
 		}
 
 	}

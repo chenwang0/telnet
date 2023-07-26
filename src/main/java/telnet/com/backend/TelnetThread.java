@@ -9,7 +9,7 @@ import telnet.com.view.components.LogComponent;
  */
 public class TelnetThread implements Runnable {
 
-    public boolean status = false;
+    public volatile boolean status = false;
 
     @Override
     public void run() {
@@ -27,7 +27,7 @@ public class TelnetThread implements Runnable {
                     e.printStackTrace();
                     LogComponent.print("[err]: 建议在任务不工作的情况下添加或删除监控数据");
                 } finally {
-                    status = false;
+                    this.status = false;
                     LogComponent.print( "[tel]: telnet 工作结束" );
                 }
             }

@@ -4,9 +4,7 @@ import javafx.application.Application;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import telnet.com.backend.TelnetControl;
-import telnet.com.backend.util.ConfigManager;
 import telnet.com.backend.util.LogImpl;
-import telnet.com.backend.util.MonitorManager;
 import telnet.com.view.components.HomeComponent;
 
 public class TelnetApplication extends Application {
