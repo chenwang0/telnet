@@ -7,8 +7,9 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.StackPane;
-import telnet.com.backend.InstanceFactory;
+import telnet.com.backend.core.factory.SingleFactory;
 import telnet.com.backend.entity.StatsSSPVO;
+import telnet.com.backend.core.manager.MonitorManager;
 import telnet.com.view.TelnetApplication;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.List;
 public class StatsComponent {
 
     public static final StackPane statsPane = new StackPane();
+    private static MonitorManager monitorManager = SingleFactory.getMonitorManager();
 
     private static final TableView<StatsSSPVO> table = new TableView<>();
     private static final ObservableList<StatsSSPVO> data = FXCollections.observableArrayList();
@@ -58,7 +60,7 @@ public class StatsComponent {
     public static void refresh( ) {
         data.clear();
         List<StatsSSPVO> statsSSPVOList = new ArrayList<>();
-        InstanceFactory.getMonitorManager().getMonitorList().forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
+        monitorManager.getMonitorList().forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
         data.addAll(statsSSPVOList);
     }
 

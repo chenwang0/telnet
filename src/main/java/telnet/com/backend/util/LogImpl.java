@@ -1,5 +1,8 @@
 package telnet.com.backend.util;
 
+import telnet.com.backend.entity.SystemConfig;
+import telnet.com.backend.core.factory.SingleFactory;
+
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,10 +15,12 @@ public class LogImpl {
     public final static String LOG_TASK_INFO = "【{0}】- task execute [ telnet {1} {2} ] receive the result >: {3}";
     public final static String LOG_DEFAULT_INFO = "【{0}】- system info : {1}";
 
+    private static SystemConfig systemConfig = SingleFactory.getSystemConfig();
+
     public static void info( String info, final Object... msg ) {
 
         String dataInfo = DateUtil.getDate();
-        String filePath = ConfigManager.path + dataInfo + ".log";
+        String filePath = systemConfig.getPath() + dataInfo + ".log";
 
         if ( msg.length > 0 ) {
 
@@ -36,7 +41,7 @@ public class LogImpl {
     public static void info() {
         SimpleDateFormat format = new SimpleDateFormat("yyyy_MM_dd");
         String dataInfo = format.format(new Date());
-        String filePath = ConfigManager.path + dataInfo + ".log";
+        String filePath = systemConfig.getPath() + dataInfo + ".log";
 
         Writer.writer("", filePath,true);
     }

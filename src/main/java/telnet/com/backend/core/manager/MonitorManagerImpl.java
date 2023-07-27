@@ -1,6 +1,8 @@
-package telnet.com.backend.manager;
+package telnet.com.backend.core.manager;
 
 import com.alibaba.fastjson2.JSON;
+import telnet.com.backend.core.factory.SingleFactory;
+import telnet.com.backend.core.observer.MonitorSubject;
 import telnet.com.backend.entity.ConfigConst;
 import telnet.com.backend.entity.Monitor;
 import telnet.com.backend.util.*;
@@ -28,6 +30,7 @@ public class MonitorManagerImpl implements MonitorManager {
 
     /** monitor list data   */
     private final CopyOnWriteArrayList<Monitor> monitorList;
+    private final MonitorSubject monitorSubject = SingleFactory.getMonitorSubject();
     private final ReentrantLock monitorLock = new ReentrantLock();
 
     public MonitorManagerImpl() {
@@ -103,11 +106,12 @@ public class MonitorManagerImpl implements MonitorManager {
             // 将数据持久化到文件
             dataPersistence();
             // 刷新统计页面数据  StatsComponent.refresh();
-            // 刷新监控页面数据
-            MonitorComponent.refresh();
+            // 刷新监控页面数据 MonitorComponent.refresh();
+            // FIXME 230727 使用发布订阅渲染视图
+            monitorSubject.publish();
         };
 
-        // 使用线程移除数据
+        // 使用线程异步移除数据
         ReleaseImpl.release(monitorLock, function);
     }
 
@@ -120,8 +124,9 @@ public class MonitorManagerImpl implements MonitorManager {
             // 将数据持久化到文件
             dataPersistence();
             // 刷新统计页面数据 StatsComponent.refresh();
-            // 刷新监控页面数据
-            MonitorComponent.refresh();
+            // 刷新监控页面数据 MonitorComponent.refresh();
+            // FIXME 230727 使用发布订阅渲染视图
+            monitorSubject.publish();
         };
 
         // 使用线程进行数据累加，自动释放资源

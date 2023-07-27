@@ -8,8 +8,9 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
-import telnet.com.backend.TelnetControl;
-import telnet.com.backend.util.ConfigManager;
+import telnet.com.backend.entity.SystemConfig;
+import telnet.com.backend.core.factory.SingleFactory;
+import telnet.com.backend.core.manager.TelnetControlManager;
 
 /**
  * 监控面板主页
@@ -19,6 +20,8 @@ public class TelnetComponent {
     // telnet 操作面板 也可以把面板理解呼唤让 java 创建一个页面吧
     public static final Pane telnetPane = new Pane();
     public static final Scene telnetScene = new Scene(telnetPane);
+    static SystemConfig systemConfig = SingleFactory.getSystemConfig();
+    static TelnetControlManager tcm = SingleFactory.getTelnetControlManager();
 
     static {
 
@@ -33,16 +36,15 @@ public class TelnetComponent {
         initComponents(wefng,25, 240);
 
 
-
         // telnet btn
         Button telnetBtn = new Button("run telnet");
         initComponents(telnetBtn,25, 210, 75);
-        telnetBtn.setOnAction(e -> TelnetControl.runTelnetThread());
+        telnetBtn.setOnAction(e -> tcm.runTelnetThread());
 
 
         // task btn
         Button taskBtn = new Button("run task");
-        if ( ConfigManager.autoTask) {
+        if (systemConfig.isAutoTask()) {
             taskBtn.setText("close task");
         }
 
@@ -51,12 +53,13 @@ public class TelnetComponent {
 
             // 点击事件设置按钮切换状态
             if ("close task".equals(taskBtn.getText())) {
-                TelnetControl.task.runStatus = false;
+
+                systemConfig.setAutoTask(false);
                 taskBtn.setText("run task");
                 LogComponent.show("[sys]: 自动任务关闭成功");
             } else {
 
-                TelnetControl.task.runStatus = true;
+                systemConfig.setAutoTask(true);
                 taskBtn.setText("close task");
                 LogComponent.show("[sys]: 自动任务开启成功，等待运行");
             }
@@ -75,7 +78,6 @@ public class TelnetComponent {
 
             led.setPrefWidth(param[2]);
         }
-
     }
 
 

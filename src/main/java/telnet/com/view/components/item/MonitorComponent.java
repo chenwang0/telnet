@@ -7,16 +7,16 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.*;
 import javafx.util.Callback;
-import telnet.com.backend.InstanceFactory;
-import telnet.com.backend.entity.Monitor;
+import telnet.com.backend.core.observer.Observer;
 import telnet.com.backend.entity.StatsSSPVO;
-import telnet.com.backend.manager.MonitorManager;
+import telnet.com.backend.core.factory.SingleFactory;
+import telnet.com.backend.core.manager.MonitorManager;
 import telnet.com.view.TelnetApplication;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MonitorComponent {
+public class MonitorComponent implements Observer {
 
 
     public static final StackPane monitorPane = new StackPane();
@@ -25,6 +25,8 @@ public class MonitorComponent {
     private static final ObservableList<StatsSSPVO> data = FXCollections.observableArrayList();
 
     public static Scene scene = new Scene( monitorPane );
+
+    static MonitorManager monitorManager = SingleFactory.getMonitorManager();
 
     static {
 
@@ -52,24 +54,23 @@ public class MonitorComponent {
                 return new TableCell<>(){
                     @Override
                     protected void updateItem(String item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                            setText(null);
-                        } else {
-                            btn.setOnAction( actionEvent -> {
-                                StatsSSPVO vo = getTableView().getItems().get(getIndex());
-                                MonitorManager manager = InstanceFactory.getMonitorManager();
-                                if (!manager.remove(vo.getHostname(), Integer.parseInt(vo.getPort()))) {
-                                    throw new RuntimeException("数据已经不存在");
-                                }
-                                MonitorComponent.refresh();
-                            });
-                            //设置按钮
-                            setGraphic(btn);
-                            //清空文本
-                            setText(null);
-                        }
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                        setText(null);
+                    } else {
+                        btn.setOnAction( actionEvent -> {
+                            StatsSSPVO vo = getTableView().getItems().get(getIndex());
+                            if (!monitorManager.remove(vo.getHostname(), Integer.parseInt(vo.getPort()))) {
+                                throw new RuntimeException("数据已经不存在");
+                            }
+                            MonitorComponent.refresh();
+                        });
+                        //设置按钮
+                        setGraphic(btn);
+                        //清空文本
+                        setText(null);
+                    }
                     }
                 };
             }
@@ -88,10 +89,14 @@ public class MonitorComponent {
     public static void refresh() {
         data.clear();
         List<StatsSSPVO> statsSSPVOList = new ArrayList<>();
-        MonitorManager monitorManager = InstanceFactory.getMonitorManager();
         monitorManager.getMonitorList().forEach(stats -> statsSSPVOList.add(new StatsSSPVO(stats)) );
         data.addAll(statsSSPVOList);
     }
 
+    @Override
+    public void update(int version) {
+
+        refresh();
+    }
 }
 

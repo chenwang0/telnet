@@ -10,9 +10,9 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
-import telnet.com.backend.InstanceFactory;
+import telnet.com.backend.core.factory.SingleFactory;
 import telnet.com.backend.entity.Monitor;
-import telnet.com.backend.manager.MonitorManager;
+import telnet.com.backend.core.manager.MonitorManager;
 import telnet.com.backend.util.CheckUtil;
 
 /**
@@ -22,6 +22,7 @@ public class MonitorAddComponent {
 
     public static final GridPane monitorAddPane = new GridPane();
     public static Scene scene = new Scene( monitorAddPane );
+    static MonitorManager monitorManager = SingleFactory.getMonitorManager();
 
     static {
         monitorAddPane.setPadding(new Insets(5));
@@ -55,7 +56,6 @@ public class MonitorAddComponent {
                 return;
             }
 
-            MonitorManager monitorManager = InstanceFactory.getMonitorManager();
 
             if (monitorManager.contains(hostnameFld.getText(), Integer.parseInt(portFld.getText()))) {
 

@@ -1,4 +1,4 @@
-package telnet.com.backend.manager;
+package telnet.com.backend.core.manager;
 
 import telnet.com.backend.entity.Monitor;
 
@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Monitor 数据维护接口
+ * Monitor 监控数据的维护接口
  * @author: cw
  * @since: 2023/7/26 22:00
  * @version: v0.1
@@ -15,11 +15,8 @@ import java.util.Optional;
  * 时间      修改人员    修改内容
  * ------------------------------
  */
-public interface MonitorManager {
+public interface MonitorManager extends ExposeLockApi {
 
-    void lock();
-    void unlock();
-    boolean getResourceStatus();
 
     void dataPersistence();
 

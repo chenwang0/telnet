@@ -1,25 +1,19 @@
 package telnet.com.view.components.item;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
-import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import telnet.com.backend.entity.ConfigConst;
+import telnet.com.backend.entity.SystemConfig;
+import telnet.com.backend.core.factory.SingleFactory;
+import telnet.com.backend.core.manager.ConfigManager;
 import telnet.com.backend.util.CheckUtil;
-import telnet.com.backend.util.ConfigManager;
-
-import java.util.Objects;
 
 
 /**
@@ -34,6 +28,9 @@ public class SystemConfigComponent {
 
     static int rowIndex = 0;
 
+    static SystemConfig systemConfig = SingleFactory.getSystemConfig();
+    static ConfigManager configManager = SingleFactory.getConfigManager();
+
 
     private static final Label hintLab = new Label();
     private static final Label timeoutLab = new Label("监控超时时间: ");
@@ -42,10 +39,10 @@ public class SystemConfigComponent {
     private static final Label pathLab = new Label("日志文件路径: ");
 
 
-    private static final TextField timeoutFld = new TextField( ConfigManager.timeout.toString() );
-    private static final TextField timeIntervalFld = new TextField( ConfigManager.timeInterval.toString() );
-    private static final TextField autoTaskFld = new TextField( ConfigManager.timeInterval.toString() );
-    private static final TextField pathFld = new TextField( ConfigManager.path );
+    private static final TextField timeoutFld = new TextField( systemConfig.getTimeout().toString() );
+    private static final TextField timeIntervalFld = new TextField( systemConfig.getTimeInterval().toString() );
+    private static final TextField autoTaskFld = new TextField( String.valueOf(systemConfig.isAutoTask()) );
+    private static final TextField pathFld = new TextField( systemConfig.getPath() );
 
     static final ChoiceBox<String> autoTaskCB = new ChoiceBox<>(FXCollections.observableArrayList("true", "false"));
 
@@ -76,7 +73,7 @@ public class SystemConfigComponent {
         pathFld.setPromptText("设置日志输出位置(默认: C:\\telnet\\log\\ )");
 
 
-        autoTaskCB.setValue(String.valueOf(ConfigManager.autoTask));
+        autoTaskCB.setValue(String.valueOf(systemConfig.isAutoTask()));
         autoTaskCB.setDisable(showStatus);
 
         // hostname label
@@ -179,31 +176,33 @@ public class SystemConfigComponent {
             hintLab.setTextFill(Color.RED);
             hintLab.setText("");
 
-            if (CheckUtil.empty( timeoutFld.getText() )) {
-                ConfigManager.timeout = ConfigConst.TIMEOUT;
+            if (CheckUtil.empty(timeoutFld.getText())) {
+
+                systemConfig.setTimeout(ConfigConst.TIMEOUT);
             } else {
-                ConfigManager.timeout = Integer.valueOf(timeoutFld.getText());
+
+                systemConfig.setTimeout(Integer.valueOf(timeoutFld.getText()));
             }
 
-            if ( CheckUtil.empty( timeIntervalFld.getText() )){
-                ConfigManager.timeInterval = ConfigConst.TIME_INTERVAL;
+            if ( CheckUtil.empty(timeIntervalFld.getText())) {
+                systemConfig.setTimeInterval(ConfigConst.TIME_INTERVAL);
             } else {
-                ConfigManager.timeInterval = Integer.valueOf(timeIntervalFld.getText());
+                systemConfig.setTimeInterval(Integer.valueOf(timeIntervalFld.getText()));
             }
 
             if ( CheckUtil.empty( autoTaskCB.getValue() )){
-                ConfigManager.autoTask = ConfigConst.AUTO_TASK;
+                systemConfig.setAutoTask(ConfigConst.AUTO_TASK);
             } else {
-                ConfigManager.autoTask = Boolean.parseBoolean(autoTaskCB.getValue());
+                systemConfig.setAutoTask(Boolean.parseBoolean(autoTaskCB.getValue()));
             }
 
             if ( CheckUtil.empty(pathFld.getText() )){
-                ConfigManager.path = ConfigConst.PATH;
+                systemConfig.setPath(ConfigConst.PATH);
             } else {
-                ConfigManager.path = String.valueOf(pathFld.getText());
+                systemConfig.setPath(String.valueOf(pathFld.getText()));
             }
 
-            ConfigManager.read();
+            configManager.dataPersistence();
 
             refresh();
             hintLab.setTextFill(Color.GREEN);
@@ -214,11 +213,11 @@ public class SystemConfigComponent {
 
 
     static void refresh() {
-        timeoutFld.setText( ConfigManager.timeout.toString() );
-        timeIntervalFld.setText( ConfigManager.timeInterval.toString() );
-        autoTaskFld.setText( ConfigManager.timeInterval.toString() );
-        pathFld.setText( ConfigManager.path );
-        autoTaskCB.setValue(String.valueOf(ConfigManager.autoTask));
+        timeoutFld.setText( systemConfig.getTimeout().toString() );
+        timeIntervalFld.setText( systemConfig.getTimeInterval().toString() );
+        autoTaskFld.setText( String.valueOf(systemConfig.isAutoTask()) );
+        pathFld.setText( systemConfig.getPath() );
+        autoTaskCB.setValue(String.valueOf(systemConfig.isAutoTask()));
     }
 
 
